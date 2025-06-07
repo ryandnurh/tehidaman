@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('email',50)->unique();
             $table->string('password');
             $table->string('foto')->nullable();
-            $table->enum('status',['aktif','tidak aktif'])->default('tidak aktif');
             $table->rememberToken();
             $table->timestamps();
         });
