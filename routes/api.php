@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\UserController;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdukController;
-
+use App\Http\Controllers\Api\TokoController;
 
 Route::prefix('auth')->group(function(){
     Route::post('register',[AuthController::class, 'register']);
@@ -12,16 +14,28 @@ Route::prefix('auth')->group(function(){
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('user', [UserController::class, 'getUser']);
+    Route::post('update-user', [UserController::class, 'updateUser']);
+    Route::post('update-password', [UserController::class, 'updatePassword']);
     
-    //produk
-    Route::get('kategori', [ProdukController::class, 'getKategori']);
-    Route::get('produk', [ProdukController::class, 'getProduk']);
-    Route::get('produk/{id}', [ProdukController::class, 'getProdukById']);
-    Route::get('produk/kategori/{id}', [ProdukController::class, 'getProdukByKategori']);
-    
+    Route::post('tambah-alamat', [UserController::class, 'tambahAlamat']);
+    Route::get('get-alamat', [UserController::class, 'getAlamat']);
+    Route::post('edit-alamat', [UserController::class, 'editAlamat']);
+    Route::post('delete-alamat', [UserController::class, 'deleteAlamat']);
     
     Route::post('logout',[AuthController::class, 'logout']);
 });
+
+//produk
+Route::get('kategori', [ProdukController::class, 'getKategori']);
+Route::get('produk', [ProdukController::class, 'getProduk']);
+// Route::get('produk/{id}', [ProdukController::class, 'getProdukById']);
+// Route::get('produk/kategori/{id}', [ProdukController::class, 'getProdukByKategori']);
+
+//toko
+Route::get('toko', [TokoController::class, 'getToko']);
+Route::get('toko/nearest', [TokoController::class, 'findNearestToko']);
 
 
 

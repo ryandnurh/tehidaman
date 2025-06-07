@@ -18,7 +18,10 @@ return new class extends Migration
             $table->string('nama_produk', 50);
             $table->text('deskripsi')->nullable();
             $table->decimal('harga', 10, 2);
+            $table->integer('jumlah_terjual')->default(0);
             $table->timestamps();
+
+            $table->foreign('id_kategori')->references('id_kategori')->on('tb_kategori')->onDelete('cascade');
         });
     }
 

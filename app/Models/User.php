@@ -57,4 +57,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function alamat()
+    {
+        return $this->hasMany(Alamat::class, 'id_user', 'id_user');
+    }
 }

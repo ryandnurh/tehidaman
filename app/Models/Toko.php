@@ -23,14 +23,15 @@ class Toko extends Model
         'no_hp_toko',
         'foto_toko',
         'email_toko',
+        'status_toko',
         'latitude',
         'longitude',
         'username_admin',
         'password_admin'
     ];
 
-    public function produk()
+    public function produkToko()
     {
-        return $this->hasMany(Produk::class, 'id_toko', 'id_toko');
+        return $this->hasMany(ProdukToko::class, 'id_toko', 'id_toko');
     }
 }

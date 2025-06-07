@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Produk extends Model
 {
@@ -26,8 +27,23 @@ class Produk extends Model
         'jumlah_terjual'
     ];
 
+    protected $appends = ['gambar_url'];
+
+    public function getGambarUrlAttribute()
+    {
+        if (!$this->gambar_produk) {
+            return null;
+        }
+        return Storage::disk('public')->path($this->gambar_produk);
+    }
+
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
+    }
+
+    public function produkToko()
+    {
+        return $this->hasMany(ProdukToko::class, 'id_produk', 'id_produk');
     }
 }
