@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Alamat;
+use App\Models\Favorit;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
@@ -61,5 +66,10 @@ class User extends Authenticatable
     public function alamat()
     {
         return $this->hasMany(Alamat::class, 'id_user', 'id_user');
+    }
+
+    public function favorit()
+    {
+        return $this->hasMany(Favorit::class, 'id_user', 'id_user');
     }
 }

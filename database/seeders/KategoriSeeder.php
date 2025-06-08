@@ -13,33 +13,33 @@ class KategoriSeeder extends Seeder
     public function run(): void
     {
         \App\Models\Kategori::create([
-            'id_kategori' => 'K001',
+            'id_kategori' => 'KAT001',
             'nama_kategori' => 'Tea Series',
             'gambar' => 'kategori/Cat-TeaSeries.png',
             'deskripsi' => 'Kategori untuk produk elektronik seperti smartphone, laptop, dan aksesori lainnya.'
         ]);
 
         \App\Models\Kategori::create([
-            'id_kategori' => 'K002',
+            'id_kategori' => 'KAT002',
             'nama_kategori' => 'Milky Series',
             'gambar' => 'kategori/Cat-MilkySeries.png',
             'deskripsi' => 'Kategori untuk produk pakaian pria, wanita, dan anak-anak.'
         ]);
 
         \App\Models\Kategori::create([
-            'id_kategori' => 'K003',
+            'id_kategori' => 'KAT003',
             'nama_kategori' => 'Squash Series',
             'gambar' => 'kategori/Cat-SquashSeries.png',
             'deskripsi' => 'Kategori untuk peralatan rumah tangga seperti perabotan, alat dapur, dan dekorasi.'
         ]);
         \App\Models\Kategori::create([
-            'id_kategori' => 'K004',
+            'id_kategori' => 'KAT004',
             'nama_kategori' => 'Thai Tea Series',
             'gambar' => 'kategori/Cat-ThaiTeaSeries.png',
             'deskripsi' => 'Kategori untuk produk olahraga seperti pakaian olahraga, sepatu, dan peralatan fitness.'
         ]);
         \App\Models\Kategori::create([
-            'id_kategori' => 'K005',
+            'id_kategori' => 'KAT005',
             'nama_kategori' => 'Yakult Series',
             'gambar' => 'kategori/Cat-YakultSeries.png',
             'deskripsi' => 'Kategori untuk produk kecantikan seperti kosmetik, perawatan kulit, dan parfum.'

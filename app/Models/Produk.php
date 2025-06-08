@@ -34,7 +34,7 @@ class Produk extends Model
         if (!$this->gambar_produk) {
             return null;
         }
-        return Storage::disk('public')->path($this->gambar_produk);
+        return Storage::disk('public')->url($this->gambar_produk);
     }
 
     public function kategori()

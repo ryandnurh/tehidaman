@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ProdukSeeder::class,
             ProdukTokoSeeder::class,
             UserSeeder::class,
+            PromoSeeder::class,
         ]);
     }
     

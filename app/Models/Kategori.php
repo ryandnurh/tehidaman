@@ -29,7 +29,7 @@ class Kategori extends Model
     public function getGambarKategoriAttribute()
     {
         if ($this->attributes['gambar']) {
-            return Storage::disk('public')->path($this->attributes['gambar']);
+            return Storage::disk('public')->url($this->attributes['gambar']);
         }
         return null;
     }

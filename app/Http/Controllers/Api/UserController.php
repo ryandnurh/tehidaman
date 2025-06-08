@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Favorit;
 use Str;
 
 class UserController extends Controller
@@ -189,6 +190,73 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Alamat berhasil dihapus',
             'data' => $user->alamat]);
+    }
+
+
+    public function tambahFavorit(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_produk' => 'required|string|max:10',
+        ]);
+
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Cek apakah produk sudah ada di favorit
+        $favorite = $user->favorit()->where('id_produk', $request->id_produk)->first();
+
+        if ($favorite) {
+            return response()->json(['message' => 'Produk sudah ada di favorit'], 400);
+        }
+
+        // Tambahkan produk ke favorit
+        $user->favorit()->create([
+            'id_user' => $user->id_user,
+            'id_produk' => $request->id_produk,
+        ]);
+
+        return response()->json(['message' => 'Produk berhasil ditambahkan ke favorit'], 201);
+    }
+
+
+    public function deleteFavorit(Request $request)
+    {
+        
+        // Validasi input
+        $request->validate([
+            'id_produk' => 'required|string|max:10',
+        ]);
+
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Cek apakah produk ada di favorit
+        $favorite = Favorit::where('id_produk', $request->id_produk)->where('id_user', $user->id_user)->delete();
+
+        if (!$favorite) {
+            return response()->json(['message' => 'Produk tidak ditemukan di favorit'], 404);
+        }
+
+        return response()->json(['message' => 'Produk berhasil dihapus dari favorit'], 200);
+    }
+
+    public function getFavorit(Request $request)
+    {
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Ambil semua produk favorit yang dimiliki user
+        $favorit = $user->favorit()->with('produk')->get();
+
+        if ($favorit->isEmpty()) {
+            return response()->json(['message' => 'Tidak ada produk favorit'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Berhasil mengambil data produk favorit',
+            'data' => $favorit,
+        ], 200);
     }
 
 }
