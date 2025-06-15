@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdukController;
 use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\PromoController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PaymentStatusController;
 
 Route::prefix('auth')->group(function(){
     Route::post('register',[AuthController::class, 'register']);
@@ -34,8 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-keranjang', [UserController::class, 'editKeranjang']);
     Route::post('delete-keranjang', [UserController::class, 'deleteKeranjang']);
 
-    Route::post('checkout', [UserController::class, 'checkout']);
-    Route::get('get-order', [UserController::class, 'getOrder']);
+    Route::post('/promo/rekomendasi', [PromoController::class, 'getRecommendations'])->name('promo.recommendations');
+    Route::post('/cart/apply-promo', [PromoController::class, 'applyPromoToCart'])->name('cart.applyPromo');
+
+    Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
+  
+    Route::post('/payment/update-status/{id_transaksi}', [PaymentStatusController::class, 'updatePaymentStatus'])->name('payment.updateStatus');
 
     Route::post('upload-foto', [UserController::class, 'uploadFoto']);
     

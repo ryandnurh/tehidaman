@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class Promo extends Model
 {
@@ -65,5 +66,22 @@ class Promo extends Model
     public function produkTarget()
     {
         return $this->belongsTo(Produk::class, 'id_produk_target', 'id_produk');
+    }
+
+
+
+    /**
+     * Scope untuk mendapatkan promo yang aktif dan masih berlaku.
+     */
+    public function scopeActiveForUser($query)
+    {
+        $now = Carbon::now();
+        return $query->where('status', 'aktif')
+                     ->where('tanggal_mulai', '<=', $now)
+                     ->where('tanggal_berakhir', '>=', $now)
+                     ->where(function ($q) {
+                         $q->whereNull('kuota_promo')
+                           ->orWhereColumn('jumlah_penggunaan', '<', 'kuota_promo');
+                     });
     }
 }

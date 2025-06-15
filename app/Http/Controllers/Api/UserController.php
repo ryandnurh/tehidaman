@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorit;
+use App\Models\Produk;
 use Str;
 
 class UserController extends Controller
@@ -54,6 +55,12 @@ class UserController extends Controller
     }
 
 
+
+
+
+
+
+    //alamat
 
     public function tambahAlamat(Request $request)
     {
@@ -193,6 +200,12 @@ class UserController extends Controller
     }
 
 
+
+
+
+
+    //favorit
+
     public function tambahFavorit(Request $request)
     {
         // Validasi input
@@ -256,6 +269,131 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Berhasil mengambil data produk favorit',
             'data' => $favorit,
+        ], 200);
+    }
+
+
+
+
+
+
+
+    //keranjang
+    public function tambahKeranjang(Request $request){
+        
+        $request->validate([
+            'id_produk' => 'required|string|max:10',
+            'id_toko' => 'required|string|max:10',
+        ]);
+        
+        $user = auth()->user();
+
+        $hargaProduk = Produk::where('id_produk', $request->id_produk)->value('harga');
+            if (!$hargaProduk) {
+                return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+            }
+
+        // Cek apakah produk sudah ada di keranjang
+        $keranjang = $user->keranjang()->where('id_produk', $request->id_produk)->first();
+        if ($keranjang) {
+            // Jika produk sudah ada, tambahkan jumlahnya
+            $keranjang->jumlah += $request->jumlah ?? 1;
+            $keranjang->harga_total = $hargaProduk * $keranjang->jumlah;
+            $keranjang->save();
+            return response()->json(['message' => 'Jumlah produk di keranjang berhasil ditambahkan'], 200);
+        }
+
+        $total = $hargaProduk * $request->jumlah;
+        
+        $user->keranjang()->create([
+            'id_keranjang' => 'KR' . Str::random(8),
+            'id_user' => $user->id_user,
+            'id_toko' => $request->id_toko,
+            'id_produk' => $request->id_produk,
+            'jumlah' => $request->jumlah ?? 1,
+            'harga_total' => $total,
+
+        ]);
+        return response()->json(['message' => 'Produk berhasil ditambahkan ke keranjang'], 201);
+    }
+
+
+    public function getKeranjang(Request $request)
+    {
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Ambil semua produk di keranjang yang dimiliki user
+        $keranjang = $user->keranjang()->with('produk')->get();
+
+        if ($keranjang->isEmpty()) {
+            return response()->json(['message' => 'Tidak ada produk di keranjang'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Berhasil mengambil data keranjang',
+            'data' => $keranjang,
+        ], 200);
+    }
+
+    public function editKeranjang(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_keranjang' => 'required|string|max:10',
+            'jumlah' => 'required|integer|min:1',
+        ]);
+
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Cari keranjang berdasarkan id_keranjang
+        $keranjang = $user->keranjang()->where('id_keranjang', $request->id_keranjang)->first();
+
+        if (!$keranjang) {
+            return response()->json(['message' => 'Keranjang tidak ditemukan'], 404);
+        }
+
+        // Update jumlah dan harga total
+        $hargaProduk = Produk::where('id_produk', $keranjang->id_produk)->value('harga');
+        if (!$hargaProduk) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        $keranjang->jumlah = $request->jumlah;
+        $keranjang->harga_total = $hargaProduk * $request->jumlah;
+        $keranjang->save();
+
+        return response()->json([
+            'message' => 'Keranjang berhasil diperbarui',
+            'data' => $keranjang,
+        ]);
+    }
+
+
+    public function deleteKeranjang(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_keranjang' => 'required|string|max:10',
+        ]);
+
+        // Ambil user yang sedang login
+        $user = auth()->user();
+
+        // Cari keranjang berdasarkan id_keranjang
+        $keranjang = $user->keranjang()->where('id_keranjang', $request->id_keranjang)->first();
+
+        if (!$keranjang) {
+            return response()->json(['message' => 'Keranjang tidak ditemukan'], 404);
+        }
+
+        // Hapus keranjang
+        $keranjang->delete();
+
+        return response()->json([
+            'message' => 'Keranjang berhasil dihapus',
+            'data' => $user->keranjang,
         ], 200);
     }
 

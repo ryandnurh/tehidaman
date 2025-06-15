@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tb_promo', function(Blueprint $table){
-            $table->string('id_promo', 20)->primary();
+            $table->string('id_promo', 50)->primary();
             $table->string('nama_promo', 100);
             $table->string('kode_promo', 50)->unique()->nullable();
             $table->text('deskripsi');

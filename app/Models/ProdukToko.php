@@ -10,8 +10,6 @@ class ProdukToko extends Model
 
     protected $table = 'tb_produk_toko';
 
-    protected $primaryKey = 'id_produk_toko';
-
     public $incrementing = false;
 
     protected $keyType = 'string';

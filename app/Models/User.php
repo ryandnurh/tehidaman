@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Alamat;
 use App\Models\Favorit;
+use App\Models\Keranjang;
+use App\Models\Transaksi;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -71,5 +73,15 @@ class User extends Authenticatable
     public function favorit()
     {
         return $this->hasMany(Favorit::class, 'id_user', 'id_user');
+    }
+
+    public function keranjang()
+    {
+        return $this->hasMany(Keranjang::class, 'id_user', 'id_user');
+    }
+
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_user', 'id_user');
     }
 }
