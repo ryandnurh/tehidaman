@@ -15,6 +15,7 @@ class Transaksi extends Model
         'id_transaksi',
         'id_user',
         'id_toko',
+        'metode_pengiriman',
         'id_alamat',
         'total_harga',
         'id_promo_terpakai',

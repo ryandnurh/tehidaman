@@ -10,6 +10,9 @@ use App\Http\Controllers\Api\TokoController;
 use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentStatusController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\MidtransWebhookController;
 
 Route::prefix('auth')->group(function(){
     Route::post('register',[AuthController::class, 'register']);
@@ -36,10 +39,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-keranjang', [UserController::class, 'editKeranjang']);
     Route::post('delete-keranjang', [UserController::class, 'deleteKeranjang']);
 
+    Route::get('checkout', [CheckoutController::class, 'prepareCheckout']);
+
     Route::post('/promo/rekomendasi', [PromoController::class, 'getRecommendations'])->name('promo.recommendations');
     Route::post('/cart/apply-promo', [PromoController::class, 'applyPromoToCart'])->name('cart.applyPromo');
 
-    Route::post('/orders', [OrderController::class, 'placeOrder'])->name('orders.place');
+    Route::get('/orders', [OrderController::class, 'getOrders']);
+    Route::post('/orders/checkout', [OrderController::class, 'checkout']);
+    Route::post('/orders', [OrderController::class, 'placeOrder']);
+
+    Route::post('/payment/create-token/{transaksi}', [PaymentController::class, 'createSnapToken']);
   
     Route::post('/payment/update-status/{id_transaksi}', [PaymentStatusController::class, 'updatePaymentStatus'])->name('payment.updateStatus');
 
@@ -60,4 +69,9 @@ Route::get('toko/nearest', [TokoController::class, 'findNearestToko']);
 
 // promo
 Route::get('promo', [PromoController::class, 'getPromo']);
+
+
+
+// Midtrans Webhook
+Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle']);
 

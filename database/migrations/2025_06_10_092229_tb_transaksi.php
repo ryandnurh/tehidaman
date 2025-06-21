@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('id_transaksi',50)->primary();
             $table->string('id_user',50);
             $table->string('id_toko',50);
+            $table->enum('metode_pengiriman',['delivery','pickup']);
+            $table->string('catatan_pembeli')->nullable();
             $table->string('id_alamat', 50)->nullable();
             $table->decimal('total_harga',10,2);
             $table->string('id_promo_terpakai',10)->nullable();

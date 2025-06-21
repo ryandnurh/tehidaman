@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Exceptions\PromoUnavailableException;
 use App\Exceptions\InsufficientStockException;
 use Illuminate\Validation\ValidationException;
+use App\Models\Keranjang;
 
 class OrderController extends Controller
 {
@@ -19,6 +20,8 @@ class OrderController extends Controller
     {
         $this->orderService = $orderService;
     }
+
+
 
     /**
      * Membuat pesanan baru berdasarkan keranjang belanja pengguna.
@@ -33,6 +36,7 @@ class OrderController extends Controller
             
             'selected_promo_id' => 'nullable|string|exists:tb_promo,id_promo',
             'selected_toko_id' => 'required|string|exists:tb_toko,id_toko',
+            'metode_pengiriman' => 'required|in:delivery,pickup', // Validasi metode pengiriman
             
             // Kolom opsional
             'id_alamat' => 'nullable|string|exists:tb_alamat,id_alamat',
@@ -51,13 +55,13 @@ class OrderController extends Controller
                 $validatedData['selected_toko_id'],
                 [
                     // Mengelompokkan metadata pesanan
-                    'id_alamat_pengiriman' => $validatedData['id_alamat'] ?? null,
+                    'metode_pengiriman' => $validatedData['metode_pengiriman'],
+                    'id_alamat' => $validatedData['id_alamat'] ?? null,
                     'catatan_pembeli' => $validatedData['catatan_pembeli'] ?? null,
-                    'metode_pembayaran_dipilih' => $validatedData['metode_pembayaran_dipilih'] ?? null,
                 ]
             );
 
-            // 3. Menyiapkan data respons yang bersih sesuai nama kolom Anda
+            // 3. Menyiapkan data respons yang bersih 
             $responseData = [
                 'id_transaksi' => $transaksi->id_transaksi,
                 'harga_akhir' => $transaksi->harga_akhir,
@@ -83,5 +87,22 @@ class OrderController extends Controller
             Log::error('Order creation failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Gagal membuat pesanan, terjadi kesalahan pada server.'], 500);
         }
+    }
+
+
+    public function getOrders(Request $request)
+    {
+        $user = auth()->user();
+
+        $orders = $this->orderService->getOrdersByUser($user);
+
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'Tidak ada pesanan ditemukan.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Daftar pesanan berhasil diambil.',
+            'data' => $orders
+        ], 200); // 200 OK
     }
 }

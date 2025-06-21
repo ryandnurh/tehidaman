@@ -81,12 +81,14 @@ class OrderService
             // --- TAHAP 3: KALKULASI HARGA FINAL & BUAT DATA ---
             $hargaAkhir = max(0, $subtotalProduk - $finalDiscountAmount);
 
-            // 3.1 Buat Transaksi (sesuai migrasi Anda)
+            // 3.1 Buat Transaksi 
             $transaksi = Transaksi::create([
                 'id_transaksi' => 'TRX' . strtoupper(uniqid()),
                 'id_user' => $user->id_user,
                 'id_toko' => $selectedTokoId,
-                'id_alamat' => $orderMeta['id_alamat_pengiriman'] ?? null,
+                'metode_pengiriman' => $orderMeta['metode_pengiriman'],
+                'catatan_pembeli' => $orderMeta['catatan_pembeli'] ?? null,
+                'id_alamat' => $orderMeta['id_alamat'] ?? null,
                 'total_harga' => $subtotalProduk, // Nama kolom dari migrasi Anda
                 'id_promo_terpakai' => $finalPromoIdToStore,
                 'diskon' => $finalDiscountAmount,
@@ -94,7 +96,7 @@ class OrderService
                 'status' => 'menunggu pembayaran', // Nilai ENUM dari migrasi Anda
             ]);
 
-            // 3.2 Buat Detail Transaksi (sesuai migrasi Anda)
+            // 3.2 Buat Detail Transaksi 
             foreach ($processedCartItems as $item) {
                 $transaksi->detail()->create([ // Pastikan relasi di model Transaksi bernama 'detail()'
                     'id_produk' => $item['id_produk'],
@@ -103,13 +105,12 @@ class OrderService
                 ]);
             }
 
-            // 3.3 Buat Entri Pembayaran (sesuai migrasi Anda)
+            // 3.3 Buat Entri Pembayaran 
             $pembayaran = $transaksi->pembayaran()->create([ // Pastikan relasi di model Transaksi bernama 'pembayaran()'
                 'id_pembayaran' => 'PAY' . strtoupper(uniqid()),
                 'metode pembayaran' => $orderMeta['metode_pembayaran_dipilih'] ?? 'QRIS', // Default ke QRIS jika tidak ada
                 'bukti_bayar' => 'Belum ada bukti bayar', // Placeholder awal
-                'status' => 'menunggu pembayaran', // Nilai ENUM dari migrasi Anda
-                'jumlah_dibayar' => $hargaAkhir,
+                'status' => 'menunggu pembayaran',
             ]);
             $transaksi->setRelation('pembayaran', $pembayaran);
 
@@ -132,5 +133,15 @@ class OrderService
             
             return $transaksi;
         });
+    }
+
+    public function getOrdersByUser(User $user)
+    {
+        $transaksi = Transaksi::select('id_transaksi', 'id_user', 'id_toko', 'metode_pengiriman',
+        'harga_akhir', 'status', 'created_at')
+            ->where('id_user', $user->id_user)
+            ->get();
+
+        return $transaksi;
     }
 }
