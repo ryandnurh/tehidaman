@@ -1,19 +1,34 @@
 <?php
+
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Midtrans;
-use App\Services\MidtransNotificationService; // Service baru untuk memproses notifikasi
+use Midtrans; // Import Midtrans
+use App\Services\MidtransNotificationService; // Import Service Anda
 
 class MidtransWebhookController extends Controller
 {
-    public function handle(Request $request, MidtransNotificationService $notificationService)
-    {
-        // Proses notifikasi menggunakan service
-        $notificationService->process($request->all());
+    protected $notificationService;
 
-        // Selalu kembalikan respons 200 OK ke Midtrans
+    public function __construct(MidtransNotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    /**
+     * Menerima notifikasi dari Midtrans.
+     */
+    public function handle(Request $request)
+    {
+        // 1. Buat instance Notification. Konstruktornya akan otomatis membaca raw body.
+        // JANGAN berikan argumen apa pun ke dalamnya.
+        $notification = new Midtrans\Notification();
+
+        // 2. Proses notifikasi menggunakan service, dengan mengirim objek notification.
+        $this->notificationService->process($notification);
+
+        // 3. Selalu kembalikan respons 200 OK ke Midtrans.
         return response()->json(['status' => 'ok']);
     }
 }

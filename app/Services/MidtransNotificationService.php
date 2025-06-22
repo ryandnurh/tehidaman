@@ -1,58 +1,73 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Transaksi;
 use App\Events\OrderPaid;
 use App\Events\OrderPaymentFailed;
 use Illuminate\Support\Facades\DB;
-use Midtrans;
+use Illuminate\Support\Facades\Log;
+use Midtrans; // Import Midtrans
 
 class MidtransNotificationService
 {
-    public function process(array $notificationPayload)
+    /**
+     * Memproses notifikasi yang sudah dalam bentuk objek Midtrans.
+     *
+     * @param \Midtrans\Notification $notification
+     * @return void
+     */
+    public function process(Midtrans\Notification $notification): void
     {
-        // Set server key Anda untuk verifikasi
-        Midtrans\Config::$serverKey = config('midtrans.server_key');
-
-        // Buat objek notifikasi dari payload
-        $notification = new Midtrans\Notification($notificationPayload);
-
-        // Verifikasi signature key (keamanan)
-        $orderId = $notification->order_id;
-        $statusCode = $notification->status_code;
-        $grossAmount = $notification->gross_amount;
-        $signature = hash('sha512', $orderId . $statusCode . $grossAmount . config('midtrans.server_key'));
+        // 1. Verifikasi Signature Key (Keamanan)
+        $signature = hash('sha512', $notification->order_id . $notification->status_code . $notification->gross_amount . config('midtrans.server_key'));
 
         if ($notification->signature_key !== $signature) {
-            // Jika signature tidak valid, abaikan notifikasi ini.
+            Log::warning("Midtrans Webhook: Invalid signature key untuk order ID {$notification->order_id}");
+            return; // Hentikan proses jika signature tidak valid
+        }
+
+        // 2. Ambil data dari objek notifikasi
+        $id_transaksi = $notification->order_id;
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus = $notification->fraud_status;
+        
+        // 3. Cari transaksi di database Anda
+        $transaksi = Transaksi::find($id_transaksi);
+        if (!$transaksi) {
+            Log::error("Midtrans Webhook: Transaksi dengan ID {$id_transaksi} tidak ditemukan.");
             return;
         }
 
-        // Temukan transaksi dan update statusnya
-        $transaksi = Transaksi::find($orderId);
-        if (!$transaksi) return;
+        $pembayaran = $transaksi->pembayaran;
+        if (!$pembayaran || $pembayaran->status === 'terbayar' || $pembayaran->status === 'gagal') {
+            Log::info("Midtrans Webhook: Transaksi {$id_transaksi} sudah pernah diproses. Status saat ini: {$pembayaran->status}");
+            return; // Hindari pemrosesan ulang
+        }
 
-        $transactionStatus = $notification->transaction_status;
-
-        // Gunakan logic yang sudah ada di PaymentStatusService atau langsung di sini
-        DB::transaction(function () use ($transactionStatus, $transaksi) {
-            $pembayaran = $transaksi->pembayaran;
-            if ($pembayaran->status === 'terbayar' || $pembayaran->status === 'gagal') {
-                return; // Sudah diproses, jangan proses lagi
-            }
-
-            if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-                $pembayaran->status = 'terbayar';
-                $transaksi->status = 'sedang dibuat';
-                event(new OrderPaid($transaksi));
-            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+        // 4. Update status berdasarkan notifikasi
+        DB::transaction(function () use ($transactionStatus, $fraudStatus, $pembayaran, $transaksi) {
+            
+            // Logika untuk pembayaran sukses
+            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                if ($fraudStatus == 'accept') {
+                    $pembayaran->status = 'terbayar';
+                    $transaksi->status = 'sedang dibuat';
+                    $pembayaran->save();
+                    $transaksi->save();
+                    event(new OrderPaid($transaksi));
+                    Log::info("Midtrans Webhook: Pembayaran untuk transaksi {$transaksi->id_transaksi} berhasil.");
+                }
+            } 
+            // Logika untuk pembayaran gagal/dibatalkan/kadaluarsa
+            elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
                 $pembayaran->status = 'gagal';
                 $transaksi->status = 'gagal';
+                $pembayaran->save();
+                $transaksi->save();
                 event(new OrderPaymentFailed($transaksi));
+                Log::info("Midtrans Webhook: Pembayaran untuk transaksi {$transaksi->id_transaksi} gagal atau dibatalkan.");
             }
-
-            $pembayaran->save();
-            $transaksi->save();
         });
     }
 }
