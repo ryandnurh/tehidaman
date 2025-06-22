@@ -35,30 +35,26 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'email'     => 'required|email',
-            'password'  => 'required'
-        ]);
+{
+    $credentials = $request->only('login', 'password');
 
-        $user = User::where('email',$request->email)->first();
+    $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (!$user || !Hash::check($request->password, $user->password)){
-            return response()->json([
-                'message' => 'Email atau password salah'
-            ],401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        // Kode yang sudah diperbaiki
-return response()->json([
-    'message' => 'Login berhasil',
-    'data' => [
-        'user' => $user,
-        'token' => $token,
-        'token_type' => 'Bearer',
-    ]
-]);
+    if (!Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']])) {
+        return response()->json(['message' => 'Login gagal'], 401);
     }
+
+    $user = Auth::user();
+    $token = $user->createToken('api_token')->plainTextToken;
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Login berhasil',
+        'data' => [
+            'user' => $user,
+            'token' => $token,
+        ]
+    ]);
+}
+
 }
