@@ -13,14 +13,14 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'nama'      => 'required|string|max:50',
+            'username'      => 'required|string|unique|max:50',
             'email'     => 'required|email|unique:tb_users,email',
             'password'  => 'required|min:8'
         ]);
 
         $user = User::create([
             'id_user'   => 'U'.strtoupper(Str::random(6)),
-            'nama'      => $request->nama,
+            'username'      => $request->username,
             'email'     => $request->email,
             'password'  => bcrypt($request->password)
         ]);
