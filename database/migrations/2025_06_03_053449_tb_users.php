@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('tb_users', function (Blueprint $table) {
             $table->string('id_user',50)->primary();
-            $table->string('nama',50);
+$table->string('username', 50);
+            $table->string('nama',50)->nullable();
             $table->string('no_hp',15)->nullable();
             $table->string('email',50)->unique();
             $table->string('password');
