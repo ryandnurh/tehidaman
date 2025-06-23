@@ -42,11 +42,26 @@ class AuthController extends Controller
 
     $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-    if (!Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']])) {
-        return response()->json(['message' => 'Login gagal'], 401);
+    // Cari user berdasarkan email atau username
+    $user = User::where($field, $credentials['login'])->first();
+
+    //Jika user tidak ditemukan
+    if (!$user) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Akun tidak ditemukan.'
+        ], 404);
     }
 
-    $user = Auth::user();
+    //Jika password salah
+    if (!Hash::check($credentials['password'], $user->password)) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Password salah.'
+        ], 401);
+    }
+
+    //Login sukses
     $token = $user->createToken('api_token')->plainTextToken;
 
     return response()->json([
@@ -58,5 +73,6 @@ class AuthController extends Controller
         ]
     ]);
 }
+
 
 }
