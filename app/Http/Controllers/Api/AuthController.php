@@ -12,29 +12,39 @@ use App\Http\Controllers\Controller;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $request->validate([
-            'username'      => 'required|string|unique:tb_users,username|max:50',
-            'email'     => 'required|email|unique:tb_users,email',
-            'password'  => 'required|min:8'
+{
+    try {
+        $validatedData = $request->validate([
+            'username' => 'required|string|unique:tb_users,username|max:50',
+            'email'    => 'required|email|unique:tb_users,email',
+            'password' => 'required|min:8',
+            'no_hp'    => 'required|string|min:8'
         ]);
-
-        $user = User::create([
-            'id_user'   => 'U'.strtoupper(Str::random(6)),
-            'username'      => $request->username,
-'no_hp' => $request->no_hp,
-            'email'     => $request->email,
-            'password'  => bcrypt($request->password)
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    } catch (\Illuminate\Validation\ValidationException $e) {
         return response()->json([
-            'message'   => 'Registrasi Berhasil',
-            'token'     => $token,
-            'user'      => $user
-        ]);
+            'status' => 'error',
+            'message' => 'Validasi gagal',
+            'errors' => $e->errors() // ← Android bisa parsing ini
+        ], 422); // 422 = Unprocessable Entity
     }
+
+    $user = User::create([
+        'id_user'  => 'U' . strtoupper(Str::random(6)),
+        'username' => $request->username,
+        'email'    => $request->email,
+        'no_hp'    => $request->no_hp,
+        'password' => bcrypt($request->password)
+    ]);
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'message' => 'Registrasi Berhasil',
+        'token'   => $token,
+        'user'    => $user
+    ]);
+}
+
 
     public function login(Request $request)
 {
