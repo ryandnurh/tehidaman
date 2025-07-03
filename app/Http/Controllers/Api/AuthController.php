@@ -12,77 +12,77 @@ use App\Http\Controllers\Controller;
 class AuthController extends Controller
 {
     public function register(Request $request)
-{
-    try {
-        $validatedData = $request->validate([
-            'username' => 'required|string|unique:tb_users,username|max:50',
-            'email'    => 'required|email|unique:tb_users,email',
-            'password' => 'required|min:8',
-            'no_hp'    => 'required|string|min:8'
+    {
+        try {
+            $validatedData = $request->validate([
+                'username' => 'required|string|unique:tb_users,username|max:50',
+                'email' => 'required|email|unique:tb_users,email',
+                'password' => 'required|min:8',
+                'no_hp' => 'required|string|min:8'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors() // ← Android bisa parsing ini
+            ], 422); // 422 = Unprocessable Entity
+        }
+
+        $user = User::create([
+            'id_user' => 'U' . strtoupper(Str::random(6)),
+            'username' => $request->username,
+            'email' => $request->email,
+            'no_hp' => $request->no_hp,
+            'password' => bcrypt($request->password)
         ]);
-    } catch (\Illuminate\Validation\ValidationException $e) {
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Validasi gagal',
-            'errors' => $e->errors() // ← Android bisa parsing ini
-        ], 422); // 422 = Unprocessable Entity
+            'message' => 'Registrasi Berhasil',
+            'token' => $token,
+            'user' => $user
+        ]);
     }
-
-    $user = User::create([
-        'id_user'  => 'U' . strtoupper(Str::random(6)),
-        'username' => $request->username,
-        'email'    => $request->email,
-        'no_hp'    => $request->no_hp,
-        'password' => bcrypt($request->password)
-    ]);
-
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'message' => 'Registrasi Berhasil',
-        'token'   => $token,
-        'user'    => $user
-    ]);
-}
 
 
     public function login(Request $request)
-{
-    $credentials = $request->only('login', 'password');
+    {
+        $credentials = $request->only('login', 'password');
 
-    $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-    // Cari user berdasarkan email atau username
-    $user = User::where($field, $credentials['login'])->first();
+        // Cari user berdasarkan email atau username
+        $user = User::where($field, $credentials['login'])->first();
 
-    //Jika user tidak ditemukan
-    if (!$user) {
+        //Jika user tidak ditemukan
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun tidak ditemukan.'
+            ], 404);
+        }
+
+        //Jika password salah
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Password salah.'
+            ], 401);
+        }
+
+        //Login sukses
+        $token = $user->createToken('api_token')->plainTextToken;
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Akun tidak ditemukan.'
-        ], 404);
+            'status' => 'success',
+            'message' => 'Login berhasil',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ]
+        ]);
     }
-
-    //Jika password salah
-    if (!Hash::check($credentials['password'], $user->password)) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Password salah.'
-        ], 401);
-    }
-
-    //Login sukses
-    $token = $user->createToken('api_token')->plainTextToken;
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Login berhasil',
-        'data' => [
-            'user' => $user,
-            'token' => $token,
-        ]
-    ]);
-}
 
 
 }
