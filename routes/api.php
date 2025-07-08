@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\PaymentStatusController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MidtransWebhookController;
+use Illuminate\Support\Facades\File;
+
 
 Route::prefix('auth')->group(function(){
     Route::post('register',[AuthController::class, 'register']);
@@ -75,3 +77,22 @@ Route::get('promo', [PromoController::class, 'getPromo']);
 // Midtrans Webhook
 Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle']);
 
+
+
+$categories = ['kategori', 'produk', 'user'];
+
+foreach ($categories as $category) {
+    Route::get("/tehidaman/storage/{$category}/{filename}", function ($filename) use ($category) {
+        return serveFromStorage($category . '/' . $filename);
+    });
+}
+
+function serveFromStorage($relativePath) {
+    $fullPath = storage_path('/public/' . $relativePath);
+    
+    if (!File::exists($fullPath)) {
+        abort(404);
+    }
+    
+    return response()->file($fullPath);
+}

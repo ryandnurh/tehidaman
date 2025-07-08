@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Kategori extends Model
 {
@@ -29,7 +28,8 @@ class Kategori extends Model
     public function getGambarKategoriAttribute()
     {
         if ($this->attributes['gambar']) {
-            return Storage::disk('public')->url($this->attributes['gambar']);
+            $gambar = asset('storage/'.$this->attributes['gambar']);
+            return $gambar;
         }
         return null;
     }
