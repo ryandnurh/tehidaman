@@ -18,6 +18,7 @@ class Alamat extends Model
         'nama_penerima',
         'no_hp_penerima',
         'alamat',
+        'detail_alamat',
         'latitude',
         'longitude',
         'status'

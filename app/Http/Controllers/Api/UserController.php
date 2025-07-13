@@ -66,7 +66,8 @@ class UserController extends Controller
     {
         // Validasi input
         $request->validate([
-            'alamat' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'detail_alamat' => 'required|string',
             'label_alamat' => 'required|string|max:100',
             'nama_penerima' => 'required|string|max:50',
             'no_hp_penerima' => 'required|string|max:15',
@@ -90,6 +91,7 @@ class UserController extends Controller
         $user->alamat()->create([
             'id_alamat' => 'AL' . Str::random(8),
             'alamat' => $request->alamat,
+            'detail_alamat' => $request->alamat,
             'label_alamat' => $request->label_alamat,
             'nama_penerima' => $request->nama_penerima,
             'no_hp_penerima' => $request->no_hp_penerima,
@@ -260,11 +262,16 @@ class UserController extends Controller
         $user = auth()->user();
 
         // Ambil semua produk favorit yang dimiliki user
-        $favorit = $user->favorit()->with('produk')->get();
+        $favorit = Favorit::select('tb_favorit.id_produk', 'tb_produk.nama_produk', 'tb_produk.harga', 'tb_produk.gambar_produk')->join('tb_produk', 'tb_favorit.id_produk', '=', 'tb_produk.id_produk')->where('id_user', $user->id_user)->get();
 
         if ($favorit->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk favorit'], 404);
         }
+        
+        $favorit = $favorit->map(function ($item){
+            $item['gambar'] = asset('storage/'.$item->gambar_produk);
+            return $item;
+        });
 
         return response()->json([
             'message' => 'Berhasil mengambil data produk favorit',

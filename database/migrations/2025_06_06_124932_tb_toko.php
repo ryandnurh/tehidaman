@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tb_toko', function (Blueprint $table) {
             $table->string('id_toko', 50)->primary();
             $table->string('nama_toko', 50);
-            $table->string('alamat_toko', 100)->nullable();
+            $table->text('alamat_toko')->nullable();
             $table->string('no_hp_toko', 15)->nullable();
             $table->string('email_toko', 50)->unique()->nullable();
             $table->string('foto_toko')->nullable();

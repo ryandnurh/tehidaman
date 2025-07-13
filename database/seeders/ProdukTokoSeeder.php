@@ -3,101 +3,56 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\ProdukToko; // Pastikan namespace model ini benar
+use App\Models\ProdukToko;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ProdukTokoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
+        // Kosongkan tabel terlebih dahulu
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('tb_produk_toko')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $now = Carbon::now();
+        $produkTokoData = [];
 
-        
-        ProdukToko::insertOrIgnore([
-            // --- Toko T001 (Sarinah) ---
-            [
-                'id_toko' => 'T001',
-                'id_produk' => 'PROD001', // Teh Melati Klasik
-                'stok' => 120,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T001',
-                'id_produk' => 'PROD002', // Teh Jahe Madu
-                'stok' => 85,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T001',
-                'id_produk' => 'PROD004', // English Breakfast Tea
-                'stok' => 50,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+        // Generate stok unik untuk setiap toko
+        $generateStocks = function($count) {
+            $stocks = [];
+            for ($i = 0; $i < $count; $i++) {
+                $stocks[] = rand(50, 200);
+            }
+            return $stocks;
+        };
 
-            // --- Toko T002 (Blok M) ---
-            [
-                'id_toko' => 'T002',
-                'id_produk' => 'PROD001', // Teh Melati Klasik juga ada di sini
-                'stok' => 75,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T002',
-                'id_produk' => 'PROD003', // Teh Leci Segar
-                'stok' => 110,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T002',
-                'id_produk' => 'PROD005', // Teh Rosella Murni
-                'stok' => 0, // Contoh stok habis
-                'status' => 'habis',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+        // Untuk setiap toko
+        foreach (['T001', 'T002', 'T003'] as $tokoId) {
+            $stocks = $generateStocks(34); // 34 produk
+            
+            // Untuk setiap produk (PROD001 sampai PROD034)
+            for ($i = 1; $i <= 34; $i++) {
+                $produkId = 'PROD' . str_pad($i, 3, '0', STR_PAD_LEFT);
+                
+                $produkTokoData[] = [
+                    'id_toko' => $tokoId,
+                    'id_produk' => $produkId,
+                    'stok' => $stocks[$i-1],
+                    'status' => 'tersedia',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
 
-            // --- Toko T003 (Taman Anggrek) ---
-            [
-                'id_toko' => 'T003',
-                'id_produk' => 'PROD002', // Teh Jahe Madu
-                'stok' => 90,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T003',
-                'id_produk' => 'PROD003', // Teh Leci Segar
-                'stok' => 60,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'id_toko' => 'T003',
-                'id_produk' => 'PROD004', // English Breakfast Tea
-                'stok' => 45,
-                'status' => 'tersedia',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-
-            // Toko T004 (Bassura) sengaja dikosongkan untuk pengujian
-        ]);
+        // Insert data dengan chunk
+        foreach (array_chunk($produkTokoData, 50) as $chunk) {
+            DB::table('tb_produk_toko')->insert($chunk);
+        }
     }
 }

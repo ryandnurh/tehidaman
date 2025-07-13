@@ -15,10 +15,10 @@ class TokoSeeder extends Seeder
     {
         Toko::create([
             'id_toko' => 'T001',
-            'nama_toko' => 'Toko Contoh',
-            'alamat_toko' => 'Jl. Contoh No. 1, Kota Contoh',
+            'nama_toko' => 'Teh Idaman Concat',
+            'alamat_toko' => 'Jl. Tantular No.11, Kaliwaru, Condongcatur, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281',
             'no_hp_toko' => '081234567890',
-            'username_admin' => 'admin1',
+            'username_admin' => 'adminconcat',
             'password_admin' => bcrypt('12345678'),
             'latitude' => -6.189950,
             'longitude' => 106.822630
@@ -26,10 +26,10 @@ class TokoSeeder extends Seeder
 
         Toko::create([
             'id_toko' => 'T002',
-            'nama_toko' => 'Toko Contoh 2',
-            'alamat_toko' => 'Jl. Contoh No. 2, Kota Contoh',
+            'nama_toko' => 'Teh Idaman Gejayan',
+            'alamat_toko' => 'Gg. Bayu Jl. Affandi No.15, Gejayan, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281',
             'no_hp_toko' => '081234567891',
-            'username_admin' => 'admin2',
+            'username_admin' => 'admingejayan',
             'password_admin' => bcrypt('12345678'),
             'latitude' => -6.244380,
             'longitude' => 106.799340
@@ -37,24 +37,13 @@ class TokoSeeder extends Seeder
 
         Toko::create([
             'id_toko' => 'T003',
-            'nama_toko' => 'Toko Contoh 3',
-            'alamat_toko' => 'Jl. Contoh No. 3, Kota Contoh',
+            'nama_toko' => 'Teh Idaman Wonosari',
+            'alamat_toko' => 'Jl. Baron No.KM 1, Seneng, Siraman, Kec. Wonosari, Kabupaten Gunungkidul, Daerah Istimewa Yogyakarta 55851',
             'no_hp_toko' => '081234567892',
-            'username_admin' => 'admin3',
+            'username_admin' => 'adminwonosari',
             'password_admin' => bcrypt('12345678'),
             'latitude' => -6.178330,
             'longitude' => 106.792490
-        ]);
-
-        Toko::create([
-            'id_toko' => 'T004',
-            'nama_toko' => 'Toko Contoh 4',
-            'alamat_toko' => 'Jl. Contoh No. 4, Kota Contoh',
-            'no_hp_toko' => '081234567893',
-            'username_admin' => 'admin4',
-            'password_admin' => bcrypt('12345678'),
-            'latitude' => -6.225940,
-            'longitude' => 106.880480
         ]);
     }
 }

@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('label_alamat', 100);
             $table->string('nama_penerima', 50);
             $table->string('no_hp_penerima', 15);
-            $table->string('alamat', 100);
+            $table->text('alamat');
+            $table->string('detail_alamat')->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
             $table->enum('status', ['utama', 'tambahan'])->default('tambahan');
