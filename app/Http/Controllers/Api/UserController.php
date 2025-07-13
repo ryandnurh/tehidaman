@@ -91,7 +91,7 @@ class UserController extends Controller
         $user->alamat()->create([
             'id_alamat' => 'AL' . Str::random(8),
             'alamat' => $request->alamat,
-            'detail_alamat' => $request->detil_alamat,
+            'detail_alamat' => $request->detail_alamat,
             'label_alamat' => $request->label_alamat,
             'nama_penerima' => $request->nama_penerima,
             'no_hp_penerima' => $request->no_hp_penerima,
