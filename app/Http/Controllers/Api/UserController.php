@@ -154,15 +154,6 @@ class UserController extends Controller
             return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
         }
 
-        $alamatUtama = $user->alamat()->where('status', 'utama')->first();
-
-        if ($request->has('status') && $request->status === 'utama') {
-            // Set semua alamat ke tambahan jika statusnya utama
-            $user->alamat()->update(['status' => 'tambahan']);
-        } else if (!$alamatUtama) {
-            $request->merge(['status' => 'utama']);
-        }
-
         // Update alamat
         $alamat->update($request->all());
 
