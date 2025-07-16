@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
+
 class AuthController extends Controller
 {
     public function register(Request $request)
