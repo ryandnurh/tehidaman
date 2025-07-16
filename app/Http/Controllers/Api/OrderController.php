@@ -28,6 +28,7 @@ class OrderController extends Controller
      */
     public function placeOrder(Request $request)
     {
+        Log::info("jsdhsjdhs");
         // 1. Validasi input disesuaikan dengan kebutuhan alur "Store-First"
         $validatedData = $request->validate([
             'items' => 'required|array|min:1',
@@ -83,7 +84,8 @@ class OrderController extends Controller
             // Menangani error yang sudah diperkirakan (validasi, stok, promo)
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (\Exception $e) {
-            // Menangani semua error tak terduga lainnya
+            // Menangani semua error tak terduga lainnya'
+            
             Log::error('Order creation failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Gagal membuat pesanan, terjadi kesalahan pada server.'], 500);
         }
