@@ -336,7 +336,7 @@ class UserController extends Controller
         }
 
         // Ambil total harga dari fungsi SQL
-        $totalHarga = DB::selectOne("SELECT hitung_total_harga_keranjang(?) AS total", [$user->id])->total;
+        $totalHarga = DB::selectOne("SELECT hitung_total_harga_keranjang(?) AS total", [$user->id_user])->total;
 
         // Gabungkan semuanya ke dalam 'data'
         $data = [
