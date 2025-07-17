@@ -325,7 +325,8 @@ class UserController extends Controller
         // Ambil isi keranjang + nama produk
         $keranjang = Keranjang::select(
                 'tb_keranjang.*',
-                'tb_produk.nama_produk'
+                'tb_produk.nama_produk',
+                'tb_produk.harga'
             )
             ->join('tb_produk', 'tb_keranjang.id_produk', '=', 'tb_produk.id_produk')
             ->where('tb_keranjang.id_user', $user->id_user)
