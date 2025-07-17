@@ -272,7 +272,11 @@ public function deleteAlamat(Request $request)
         $user = auth()->user();
 
         // Ambil semua produk favorit yang dimiliki user
-        $favorit = Favorit::select('tb_favorit.id_produk', 'tb_produk.nama_produk', 'tb_produk.harga', 'tb_produk.gambar_produk')->join('tb_produk', 'tb_favorit.id_produk', '=', 'tb_produk.id_produk')->where('id_user', $user->id_user)->get();
+        $favorit = Favorit::select(
+            'tb_favorit.id_produk', 'tb_produk.nama_produk', 'tb_produk.harga', 'tb_produk.gambar_produk')
+        ->join('tb_produk', 'tb_favorit.id_produk', '=', 'tb_produk.id_produk')
+        ->where('id_user', $user->id_user)
+        ->get();
 
         if ($favorit->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk favorit'], 404);
@@ -340,24 +344,30 @@ public function deleteAlamat(Request $request)
     {
         $user = auth()->user();
 
-        // Ambil isi keranjang + nama produk
         $keranjang = Keranjang::select(
             'tb_keranjang.*',
             'tb_produk.nama_produk',
-            'tb_produk.harga'
+            'tb_produk.harga',
+            'tb_produk.gambar_produk'
         )
             ->join('tb_produk', 'tb_keranjang.id_produk', '=', 'tb_produk.id_produk')
             ->where('tb_keranjang.id_user', $user->id_user)
             ->get();
 
+
         if ($keranjang->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk di keranjang'], 404);
         }
 
-        // Ambil total harga dari fungsi SQL
         $totalHarga = DB::selectOne("SELECT hitung_total_harga_keranjang(?) AS total", [$user->id_user])->total;
 
-        // Gabungkan semuanya ke dalam 'data'
+
+        $keranjang = $keranjang->map(function ($item) {
+            $item['gambar'] = asset('storage/' . $item->gambar_produk);
+            return $item;
+        });
+
+
         $data = [
             'keranjang' => $keranjang,
             'total_harga' => $totalHarga
