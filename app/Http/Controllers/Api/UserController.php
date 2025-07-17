@@ -171,37 +171,36 @@ class UserController extends Controller
         ]);
     }
 
-    public function deleteAlamat(Request $request)
-    {
-        // Ambil user yang sedang login
-        $user = auth()->user();
+    
+public function deleteAlamat(Request $request)
+{
+    $user = auth()->user();
 
-        // Cari alamat berdasarkan id_alamat
-        $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
+    // Cari alamat berdasarkan id_alamat
+    $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
 
-        // Jangan hapus jika itu satu-satunya alamat utama
-        if ($alamat->status === 'utama') {
-            $jumlahAlamatUtama = $user->alamat()->where('status', 'utama')->count();
-            if ($jumlahAlamatUtama === 1) {
-                return response()->json(['message' => 'Alamat utama tidak boleh dihapus tanpa mengganti alamat utama lainnya.'], 400);
-            }
-        }
-
-        if (!$alamat) {
-            return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
-        }
-
-
-
-        // Hapus alamat
-        $alamat->delete();
-
-        return response()->json([
-            'message' => 'Alamat berhasil dihapus',
-            'data' => $user->alamat
-        ]);
+    if (!$alamat) {
+        return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
     }
 
+    $isUtama = $alamat->status === 'utama';
+
+    // Hapus alamat
+    $alamat->delete();
+
+    // Jika yang dihapus adalah utama, dan masih ada alamat lain → jadikan salah satunya sebagai utama
+    if ($isUtama) {
+        $alamatLain = $user->alamat()->first(); // ambil salah satu alamat lain, jika ada
+        if ($alamatLain) {
+            $alamatLain->update(['status' => 'utama']);
+        }
+    }
+
+    return response()->json([
+        'message' => 'Alamat berhasil dihapus',
+        'data' => $user->alamat,
+    ]);
+}
 
 
 
