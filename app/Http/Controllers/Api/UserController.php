@@ -177,14 +177,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
         }
 
-        // Jika alamat yang akan dihapus adalah alamat utama, set alamat utama lainnya jika ada
-        if ($alamat->status === 'utama') {
-            $alamatUtamaLainnya = $user->alamat()->where('id_alamat', '!=', $alamat->id_alamat)->where('status', 'tambahan')->first();
-            if ($alamatUtamaLainnya) {
-                // Set alamat utama lainnya sebagai alamat utama
-                $alamatUtamaLainnya->update(['status' => 'utama']);
-            }
-        }
+        
 
         // Hapus alamat
         $alamat->delete();
