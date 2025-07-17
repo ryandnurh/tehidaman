@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-keranjang', [UserController::class, 'editKeranjang']);
     Route::post('delete-keranjang', [UserController::class, 'deleteKeranjang']);
 
-    Route::get('checkout', [CheckoutController::class, 'prepareCheckout']);
+    Route::post('checkout', [CheckoutController::class, 'prepareCheckout']);
 
     Route::post('/promo/rekomendasi', [PromoController::class, 'getRecommendations'])->name('promo.recommendations');
     Route::post('/cart/apply-promo', [PromoController::class, 'applyPromoToCart'])->name('cart.applyPromo');
