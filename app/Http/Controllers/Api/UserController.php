@@ -327,7 +327,7 @@ class UserController extends Controller
                 'tb_produk.nama_produk'
             )
             ->join('tb_produk', 'tb_keranjang.id_produk', '=', 'tb_produk.id_produk')
-            ->where('tb_keranjang.id_user', $user->id)
+            ->where('tb_keranjang.id_user', $user->id_user)
             ->get();
 
         if ($keranjang->isEmpty()) {
