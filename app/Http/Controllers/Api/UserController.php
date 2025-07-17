@@ -318,19 +318,33 @@ class UserController extends Controller
 
     public function getKeranjang(Request $request)
     {
-        // Ambil user yang sedang login
         $user = auth()->user();
 
-        // Ambil semua produk di keranjang yang dimiliki user
-        $keranjang = $user->keranjang()->with('produk')->get();
+        // Ambil isi keranjang + nama produk
+        $keranjang = Keranjang::select(
+                'tb_keranjang.*',
+                'tb_produk.nama_produk'
+            )
+            ->join('tb_produk', 'tb_keranjang.id_produk', '=', 'tb_produk.id_produk')
+            ->where('tb_keranjang.id_user', $user->id)
+            ->get();
 
         if ($keranjang->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk di keranjang'], 404);
         }
 
+        // Ambil total harga dari fungsi SQL
+        $totalHarga = DB::selectOne("SELECT hitung_total_harga_keranjang(?) AS total", [$user->id])->total;
+
+        // Gabungkan semuanya ke dalam 'data'
+        $data = [
+            'keranjang' => $keranjang,
+            'total_harga' => $totalHarga
+        ];
+
         return response()->json([
             'message' => 'Berhasil mengambil data keranjang',
-            'data' => $keranjang,
+            'data' => $data
         ], 200);
     }
 
