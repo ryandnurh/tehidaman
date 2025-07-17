@@ -87,7 +87,7 @@ class UserController extends Controller
             $user->alamat()->update(['status' => 'tambahan']);
         } else if (!$alamatUtama) {
             $request->merge(['status' => 'utama']);
-        } 
+        }
 
         // Tambahkan alamat baru ke user
         $user->alamat()->create([
@@ -145,7 +145,7 @@ class UserController extends Controller
     public function editAlamat(Request $request)
     {
         // Validasi input
-        
+
         // Ambil user yang sedang login
         $user = auth()->user();
 
@@ -157,10 +157,10 @@ class UserController extends Controller
         }
 
         // Jika ingin mengubah jadi alamat utama
-    if ($request->has('status') && $request->status === 'utama') {
-        // Semua alamat user di-set ke tambahan
-        $user->alamat()->update(['status' => 'tambahan']);
-    }
+        if ($request->has('status') && $request->status === 'utama') {
+            // Semua alamat user di-set ke tambahan
+            $user->alamat()->update(['status' => 'tambahan']);
+        }
 
         // Update alamat
         $alamat->update($request->all());
@@ -179,18 +179,27 @@ class UserController extends Controller
         // Cari alamat berdasarkan id_alamat
         $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
 
+        // Jangan hapus jika itu satu-satunya alamat utama
+        if ($alamat->status === 'utama') {
+            $jumlahAlamatUtama = $user->alamat()->where('status', 'utama')->count();
+            if ($jumlahAlamatUtama === 1) {
+                return response()->json(['message' => 'Alamat utama tidak boleh dihapus tanpa mengganti alamat utama lainnya.'], 400);
+            }
+        }
+
         if (!$alamat) {
             return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
         }
 
-        
+
 
         // Hapus alamat
         $alamat->delete();
 
         return response()->json([
             'message' => 'Alamat berhasil dihapus',
-            'data' => $user->alamat]);
+            'data' => $user->alamat
+        ]);
     }
 
 
@@ -229,7 +238,7 @@ class UserController extends Controller
 
     public function deleteFavorit(Request $request)
     {
-        
+
         // Validasi input
         $request->validate([
             'id_produk' => 'required|string|max:10',
@@ -259,9 +268,9 @@ class UserController extends Controller
         if ($favorit->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk favorit'], 404);
         }
-        
-        $favorit = $favorit->map(function ($item){
-            $item['gambar'] = asset('storage/'.$item->gambar_produk);
+
+        $favorit = $favorit->map(function ($item) {
+            $item['gambar'] = asset('storage/' . $item->gambar_produk);
             return $item;
         });
 
@@ -278,19 +287,20 @@ class UserController extends Controller
 
 
     //keranjang
-    public function tambahKeranjang(Request $request){
-        
+    public function tambahKeranjang(Request $request)
+    {
+
         $request->validate([
             'id_produk' => 'required|string|max:10',
             'id_toko' => 'required|string|max:10',
         ]);
-        
+
         $user = auth()->user();
 
         $hargaProduk = Produk::where('id_produk', $request->id_produk)->value('harga');
-            if (!$hargaProduk) {
-                return response()->json(['message' => 'Produk tidak ditemukan'], 404);
-            }
+        if (!$hargaProduk) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+        }
 
         // Cek apakah produk sudah ada di keranjang
         $keranjang = $user->keranjang()->where('id_produk', $request->id_produk)->first();
@@ -303,7 +313,7 @@ class UserController extends Controller
         }
 
         $total = $hargaProduk * $request->jumlah;
-        
+
         $user->keranjang()->create([
             'id_keranjang' => 'KR' . Str::random(8),
             'id_user' => $user->id_user,
@@ -323,10 +333,10 @@ class UserController extends Controller
 
         // Ambil isi keranjang + nama produk
         $keranjang = Keranjang::select(
-                'tb_keranjang.*',
-                'tb_produk.nama_produk',
-                'tb_produk.harga'
-            )
+            'tb_keranjang.*',
+            'tb_produk.nama_produk',
+            'tb_produk.harga'
+        )
             ->join('tb_produk', 'tb_keranjang.id_produk', '=', 'tb_produk.id_produk')
             ->where('tb_keranjang.id_user', $user->id_user)
             ->get();
