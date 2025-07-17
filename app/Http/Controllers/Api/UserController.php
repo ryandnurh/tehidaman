@@ -110,6 +110,8 @@ class UserController extends Controller
     }
 
 
+
+
     public function getAlamat(Request $request)
     {
 
@@ -142,6 +144,9 @@ class UserController extends Controller
 
     }
 
+
+
+
     public function editAlamat(Request $request)
     {
         // Validasi input
@@ -170,6 +175,8 @@ class UserController extends Controller
             'data' => $alamat,
         ]);
     }
+
+
 
     
 public function deleteAlamat(Request $request)
@@ -201,6 +208,9 @@ public function deleteAlamat(Request $request)
         'data' => $user->alamat,
     ]);
 }
+
+
+
 
 
 
