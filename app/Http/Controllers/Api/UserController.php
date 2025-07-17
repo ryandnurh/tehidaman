@@ -156,6 +156,12 @@ class UserController extends Controller
             return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
         }
 
+        // Jika ingin mengubah jadi alamat utama
+    if ($request->has('status') && $request->status === 'utama') {
+        // Semua alamat user di-set ke tambahan
+        $user->alamat()->update(['status' => 'tambahan']);
+    }
+
         // Update alamat
         $alamat->update($request->all());
 
