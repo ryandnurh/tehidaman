@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorit;
 use App\Models\Produk;
+use App\Models\Keranjang;
 use Str;
 
 class UserController extends Controller
