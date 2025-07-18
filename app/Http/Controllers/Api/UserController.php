@@ -22,18 +22,11 @@ class UserController extends Controller
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
-        // Ambil alamat yang dimiliki user
-        $alamat = $user->alamat()->where('status', 'utama')->first();
-        if (!$alamat) {
-            $alamat = 'Tidak ada alamat utama yang ditemukan';
-        }
+        
 
         return response()->json([
             'message' => 'Berhasil mengambil data user',
-            'data' => [
-                'user' => $user,
-                'alamat' => $alamat,
-            ],
+            'data' => $user,
         ], 200);
     }
 
