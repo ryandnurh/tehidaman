@@ -14,26 +14,22 @@ class UserController extends Controller
 {
 
     public function getUser(Request $request)
-    {
-        // Ambil user yang sedang login
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'User tidak ditemukan'], 404);
-        }
+    if (!$user) {
+        return response()->json(['message' => 'User tidak ditemukan'], 404);
+    }
 
-$user = $user->map(function ($item) {
-            $item['foto_uri'] = asset('storage/' . $item->foto);
-            return $item;
-        });
+    // Tambahkan URL gambar jika ada
+    $user->foto_uri = $user->foto ? asset('storage/' . $user->foto) : null;
 
-        
+    return response()->json([
+        'message' => 'Berhasil mengambil data user',
+        'data' => $user,
+    ], 200);
+}
 
-        return response()->json([
-            'message' => 'Berhasil mengambil data user',
-            'data' => $user,
-        ], 200);
-    }
 
     public function updateUser(Request $request)
     {
