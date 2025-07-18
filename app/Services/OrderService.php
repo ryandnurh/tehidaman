@@ -36,8 +36,8 @@ class OrderService
             $productIds = array_column($rawCartItems, 'id_produk');
             $productsFromDb = Produk::whereIn('id_produk', $productIds)->get()->keyBy('id_produk');
             $stockData = ProdukToko::where('id_toko', $selectedTokoId)
-                                     ->whereIn('id_produk', $productIds)
-                                     ->get()->keyBy('id_produk');
+                ->whereIn('id_produk', $productIds)
+                ->get()->keyBy('id_produk');
 
             foreach ($rawCartItems as $item) {
                 $produk = $productsFromDb->get($item['id_produk']);
@@ -66,7 +66,7 @@ class OrderService
                 $promoToConsume = Promo::lockForUpdate()->find($selectedPromoId);
 
                 if (!$this->promoService->isPromoApplicable($promoToConsume, $user, $processedCartItems, $subtotalProduk, $productsFromDb)) {
-                     throw new PromoUnavailableException("Promo tidak berlaku untuk keranjang atau pengguna ini.");
+                    throw new PromoUnavailableException("Promo tidak berlaku untuk keranjang atau pengguna ini.");
                 }
 
                 // Kalkulasi diskon (asumsi tidak ada ongkir)
@@ -124,24 +124,30 @@ class OrderService
                     }
                 }
             }
-            
+
             foreach ($processedCartItems as $item) {
                 ProdukToko::where('id_toko', $selectedTokoId)
-                          ->where('id_produk', $item['id_produk'])
-                          ->decrement('stok', $item['jumlah']);
+                    ->where('id_produk', $item['id_produk'])
+                    ->decrement('stok', $item['jumlah']);
             }
-            
+
             return $transaksi;
         });
     }
 
     public function getOrdersByUser(User $user)
     {
-        $transaksi = Transaksi::select('id_transaksi', 'id_user', 'id_toko', 'metode_pengiriman',
-        'harga_akhir', 'status', 'created_at')
+        $transaksi = Transaksi::with('detailTransaksi') // pastikan relasi sudah di-define
             ->where('id_user', $user->id_user)
-            ->get();
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($order) {
+                $order->total_item = $order->detailTransaksi->sum('jumlah'); // jumlahkan kolom 'jumlah'
+                return $order;
+            });
 
         return $transaksi;
     }
+
+
 }
