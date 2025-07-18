@@ -60,4 +60,11 @@ class Transaksi extends Model
         // Pastikan namespace App\Models\Pembayaran sudah benar
         return $this->hasOne(Pembayaran::class, 'id_transaksi', 'id_transaksi');
     }
+
+    // Transaksi.php
+    public function detailTransaksi()
+    {
+        return $this->hasMany(DetailTransaksi::class, 'id_transaksi', 'id_transaksi');
+    }
+
 }
