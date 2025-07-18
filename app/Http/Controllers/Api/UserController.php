@@ -40,6 +40,11 @@ class UserController extends Controller
         // Ambil user yang sedang login
         $user = auth()->user();
 
+if ($request->hasFile('photo')) {
+        $path = $request->file('photo')->store('profile', 'public');
+        $user->foto = $path;
+    }
+
         // Update data user
         $user->update($request->all());
 
