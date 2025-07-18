@@ -22,6 +22,11 @@ class UserController extends Controller
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
+$user = $user->map(function ($item) {
+            $item['foto_uri'] = asset('storage/' . $item->foto);
+            return $item;
+        });
+
         
 
         return response()->json([
