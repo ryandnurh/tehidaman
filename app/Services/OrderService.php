@@ -115,21 +115,21 @@ class OrderService
             $transaksi->setRelation('pembayaran', $pembayaran);
 
             // --- TAHAP 4: UPDATE STATE (KONSUMSI KUOTA & STOK) ---
-            // if ($promoToConsume) {
-            //     if ($promoToConsume->kuota_promo !== null) {
-            //         $promoToConsume->increment('jumlah_penggunaan'); // Kolom dari model Promo Anda
-            //         if ($promoToConsume->jumlah_penggunaan >= $promoToConsume->kuota_promo) {
-            //             $promoToConsume->status = 'habis'; // Kolom dari model Promo Anda
-            //             $promoToConsume->save();
-            //         }
-            //     }
-            // }
+            if ($promoToConsume) {
+                if ($promoToConsume->kuota_promo !== null) {
+                    $promoToConsume->increment('jumlah_penggunaan'); // Kolom dari model Promo Anda
+                    if ($promoToConsume->jumlah_penggunaan >= $promoToConsume->kuota_promo) {
+                        $promoToConsume->status = 'habis'; // Kolom dari model Promo Anda
+                        $promoToConsume->save();
+                    }
+                }
+            }
             
-            // foreach ($processedCartItems as $item) {
-            //     ProdukToko::where('id_toko', $selectedTokoId)
-            //               ->where('id_produk', $item['id_produk'])
-            //               ->decrement('stok', $item['jumlah']);
-            // }
+            foreach ($processedCartItems as $item) {
+                ProdukToko::where('id_toko', $selectedTokoId)
+                          ->where('id_produk', $item['id_produk'])
+                          ->decrement('stok', $item['jumlah']);
+            }
             
             return $transaksi;
         });
