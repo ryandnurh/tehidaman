@@ -34,7 +34,7 @@ class UserController extends Controller
     {
         // Validasi input
         $request->validate([
-            'email' => 'email|max:100|unique:users,email,' . auth()->id()
+            'email' => 'email|max:100|unique:tb_users,email,' . auth()->id()
         ]);
 
         // Ambil user yang sedang login
