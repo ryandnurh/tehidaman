@@ -42,9 +42,13 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('profile', 'public');
-            $user->foto = $path;
-        }
+  $file = $request->file('photo');
+  $filename = time() . '_' . $file->getClientOriginalName();
+  $file->move(public_path('uploads/profile'), $filename); // langsung ke public/uploads/profile
+
+  $user->foto = 'uploads/profile/' . $filename;
+}
+
 
         // Update data user
         $user->update($request->all());
