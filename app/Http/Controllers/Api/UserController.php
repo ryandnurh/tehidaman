@@ -14,21 +14,21 @@ class UserController extends Controller
 {
 
     public function getUser(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    if (!$user) {
-        return response()->json(['message' => 'User tidak ditemukan'], 404);
-    }
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
 
-    // Tambahkan URL gambar jika ada
-    $user->foto_uri = $user->foto ? asset('storage/' . $user->foto) : null;
+        // Tambahkan URL gambar jika ada
+        $user->foto_uri = $user->foto ? asset('storage/' . $user->foto) : null;
 
-    return response()->json([
-        'message' => 'Berhasil mengambil data user',
-        'data' => $user,
-    ], 200);
-}
+        return response()->json([
+            'message' => 'Berhasil mengambil data user',
+            'data' => $user,
+        ], 200);
+    }
 
 
     public function updateUser(Request $request)
@@ -41,10 +41,10 @@ class UserController extends Controller
         // Ambil user yang sedang login
         $user = auth()->user();
 
-if ($request->hasFile('photo')) {
-        $path = $request->file('photo')->store('profile', 'public');
-        $user->foto = $path;
-    }
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('profile', 'public');
+            $user->foto = $path;
+        }
 
         // Update data user
         $user->update($request->all());
@@ -177,36 +177,36 @@ if ($request->hasFile('photo')) {
 
 
 
-    
-public function deleteAlamat(Request $request)
-{
-    $user = auth()->user();
 
-    // Cari alamat berdasarkan id_alamat
-    $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
+    public function deleteAlamat(Request $request)
+    {
+        $user = auth()->user();
 
-    if (!$alamat) {
-        return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
-    }
+        // Cari alamat berdasarkan id_alamat
+        $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
 
-    $isUtama = $alamat->status === 'utama';
-
-    // Hapus alamat
-    $alamat->delete();
-
-    // Jika yang dihapus adalah utama, dan masih ada alamat lain → jadikan salah satunya sebagai utama
-    if ($isUtama) {
-        $alamatLain = $user->alamat()->first(); // ambil salah satu alamat lain, jika ada
-        if ($alamatLain) {
-            $alamatLain->update(['status' => 'utama']);
+        if (!$alamat) {
+            return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
         }
-    }
 
-    return response()->json([
-        'message' => 'Alamat berhasil dihapus',
-        'data' => $user->alamat,
-    ]);
-}
+        $isUtama = $alamat->status === 'utama';
+
+        // Hapus alamat
+        $alamat->delete();
+
+        // Jika yang dihapus adalah utama, dan masih ada alamat lain → jadikan salah satunya sebagai utama
+        if ($isUtama) {
+            $alamatLain = $user->alamat()->first(); // ambil salah satu alamat lain, jika ada
+            if ($alamatLain) {
+                $alamatLain->update(['status' => 'utama']);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Alamat berhasil dihapus',
+            'data' => $user->alamat,
+        ]);
+    }
 
 
 
@@ -272,10 +272,14 @@ public function deleteAlamat(Request $request)
 
         // Ambil semua produk favorit yang dimiliki user
         $favorit = Favorit::select(
-            'tb_favorit.id_produk', 'tb_produk.nama_produk', 'tb_produk.harga', 'tb_produk.gambar_produk')
-        ->join('tb_produk', 'tb_favorit.id_produk', '=', 'tb_produk.id_produk')
-        ->where('id_user', $user->id_user)
-        ->get();
+            'tb_favorit.id_produk',
+            'tb_produk.nama_produk',
+            'tb_produk.harga',
+            'tb_produk.gambar_produk'
+        )
+            ->join('tb_produk', 'tb_favorit.id_produk', '=', 'tb_produk.id_produk')
+            ->where('id_user', $user->id_user)
+            ->get();
 
         if ($favorit->isEmpty()) {
             return response()->json(['message' => 'Tidak ada produk favorit'], 404);
