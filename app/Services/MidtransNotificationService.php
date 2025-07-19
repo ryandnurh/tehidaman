@@ -22,6 +22,7 @@ class MidtransNotificationService
         // 1. Verifikasi Signature Key (Keamanan)
         $signature = hash('sha512', $notification->order_id . $notification->status_code . $notification->gross_amount . config('midtrans.server_key'));
 
+        Log::info("midtrans notif line 25 jalan");
         if ($notification->signature_key !== $signature) {
             Log::warning("Midtrans Webhook: Invalid signature key untuk order ID {$notification->order_id}");
             return; // Hentikan proses jika signature tidak valid

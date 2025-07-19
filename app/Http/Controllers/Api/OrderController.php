@@ -34,11 +34,11 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.id_produk' => 'required|string|exists:tb_produk,id_produk',
             'items.*.jumlah' => 'required|integer|min:1',
-            
+
             'selected_promo_id' => 'nullable|string|exists:tb_promo,id_promo',
             'selected_toko_id' => 'required|string|exists:tb_toko,id_toko',
             'metode_pengiriman' => 'required|in:delivery,pickup', // Validasi metode pengiriman
-            
+
             // Kolom opsional
             'id_alamat' => 'nullable|string|exists:tb_alamat,id_alamat',
             'catatan_pembeli' => 'nullable|string|max:500',
@@ -61,6 +61,13 @@ class OrderController extends Controller
                     'catatan_pembeli' => $validatedData['catatan_pembeli'] ?? null,
                 ]
             );
+
+            $midtrans = new PaymentController(); 
+            $token = $midtrans->createSnapToken($request, $transaksi);
+
+            $transaksi->snap_token = $token;
+            $transaksi->save();
+
 
             // 3. Menyiapkan data respons yang bersih 
             $responseData = [
@@ -85,7 +92,7 @@ class OrderController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (\Exception $e) {
             // Menangani semua error tak terduga lainnya'
-            
+
             Log::error('Order creation failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Gagal membuat pesanan, terjadi kesalahan pada server.'], 500);
         }

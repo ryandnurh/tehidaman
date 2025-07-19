@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('id_promo_terpakai',10)->nullable();
             $table->decimal('diskon',10,2)->nullable();
             $table->decimal('harga_akhir',10,2);
+            $table->string('snap_token')->nullable();
             $table->enum('status',['menunggu pembayaran', 'sedang dibuat', 'sedang diantar', 'selesai', 'gagal']);
             $table->timestamps();
 

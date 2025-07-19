@@ -81,6 +81,8 @@ class OrderService
             // --- TAHAP 3: KALKULASI HARGA FINAL & BUAT DATA ---
             $hargaAkhir = max(0, $subtotalProduk - $finalDiscountAmount);
 
+
+            
             // 3.1 Buat Transaksi 
             $transaksi = Transaksi::create([
                 'id_transaksi' => 'TRX' . strtoupper(uniqid()),
@@ -112,6 +114,8 @@ class OrderService
                 'bukti_bayar' => 'Belum ada bukti bayar', // Placeholder awal
                 'status' => 'menunggu pembayaran',
             ]);
+            
+
             $transaksi->setRelation('pembayaran', $pembayaran);
 
             // --- TAHAP 4: UPDATE STATE (KONSUMSI KUOTA & STOK) ---
