@@ -36,7 +36,7 @@ class PaymentController extends Controller
             // Dapatkan Snap Token dari Midtrans
             $snapToken = Midtrans\Snap::getSnapToken($params);
 
-            return response()->json(['snap_token' => $snapToken]);
+            return $snapToken;
 
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal membuat token pembayaran: ' . $e->getMessage()], 500);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +16,12 @@ use App\Models\Keranjang;
 class OrderController extends Controller
 {
     protected $orderService;
+    protected $midtrans;
 
-    public function __construct(OrderService $orderService)
+    public function __construct(OrderService $orderService, PaymentController $midtrans)
     {
         $this->orderService = $orderService;
+        $this->midtrans = $midtrans;
     }
 
 
@@ -62,8 +65,8 @@ class OrderController extends Controller
                 ]
             );
 
-            $midtrans = new PaymentController(); 
-            $token = $midtrans->createSnapToken($request, $transaksi);
+            
+            $token = $this->midtrans->createSnapToken($request, $transaksi);
 
             $transaksi->snap_token = $token;
             $transaksi->save();
