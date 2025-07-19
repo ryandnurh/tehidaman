@@ -30,6 +30,8 @@ class PaymentController extends Controller
                 'email' => $transaksi->user->email,
                 'phone' => $transaksi->user->no_hp,
             ],
+'callbacks' => [
+'finish' => 'tehidaman://payment/success'],
         ];
 
         try {
