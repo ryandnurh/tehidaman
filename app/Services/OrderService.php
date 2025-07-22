@@ -82,7 +82,7 @@ class OrderService
             $hargaAkhir = max(0, $subtotalProduk - $finalDiscountAmount);
 
 
-            
+
             // 3.1 Buat Transaksi 
             $transaksi = Transaksi::create([
                 'id_transaksi' => 'TRX' . strtoupper(uniqid()),
@@ -114,7 +114,7 @@ class OrderService
                 'bukti_bayar' => 'Belum ada bukti bayar', // Placeholder awal
                 'status' => 'menunggu pembayaran',
             ]);
-            
+
 
             $transaksi->setRelation('pembayaran', $pembayaran);
 
@@ -141,17 +141,20 @@ class OrderService
 
     public function getOrdersByUser(User $user)
     {
-        $transaksi = Transaksi::with('detailTransaksi') // pastikan relasi sudah di-define
+        $transaksi = Transaksi::with([
+            'detailTransaksi.produk' // pastikan nama relasi sesuai di model
+        ])
             ->where('id_user', $user->id_user)
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($order) {
-                $order->total_item = $order->detailTransaksi->sum('jumlah'); // jumlahkan kolom 'jumlah'
+                $order->total_item = $order->detailTransaksi->sum('jumlah');
                 return $order;
             });
 
         return $transaksi;
     }
+
 
 
 }
