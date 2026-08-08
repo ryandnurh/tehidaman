@@ -62,8 +62,6 @@ Route::middleware('auth:sanctum')->group(function () {
 //produk
 Route::get('kategori', [ProdukController::class, 'getKategori']);
 Route::get('produk', [ProdukController::class, 'getProduk']);
-// Route::get('produk/{id}', [ProdukController::class, 'getProdukById']);
-// Route::get('produk/kategori/{id}', [ProdukController::class, 'getProdukByKategori']);
 
 //toko
 Route::get('toko', [TokoController::class, 'getToko']);

@@ -7,7 +7,7 @@ use App\Events\OrderPaid;
 use App\Events\OrderPaymentFailed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Midtrans; // Import Midtrans
+use Midtrans;
 
 class MidtransNotificationService
 {
@@ -19,21 +19,17 @@ class MidtransNotificationService
      */
     public function process(Midtrans\Notification $notification): void
     {
-        // 1. Verifikasi Signature Key (Keamanan)
         $signature = hash('sha512', $notification->order_id . $notification->status_code . $notification->gross_amount . config('midtrans.server_key'));
-
         Log::info("midtrans notif line 25 jalan");
         if ($notification->signature_key !== $signature) {
             Log::warning("Midtrans Webhook: Invalid signature key untuk order ID {$notification->order_id}");
-            return; // Hentikan proses jika signature tidak valid
+            return;
         }
 
-        // 2. Ambil data dari objek notifikasi
         $id_transaksi = $notification->order_id;
         $transactionStatus = $notification->transaction_status;
         $fraudStatus = $notification->fraud_status;
-        
-        // 3. Cari transaksi di database Anda
+
         $transaksi = Transaksi::find($id_transaksi);
         if (!$transaksi) {
             Log::error("Midtrans Webhook: Transaksi dengan ID {$id_transaksi} tidak ditemukan.");

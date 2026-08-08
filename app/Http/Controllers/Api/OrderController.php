@@ -31,27 +31,20 @@ class OrderController extends Controller
      */
     public function placeOrder(Request $request)
     {
-        Log::info("jsdhsjdhs");
-        // 1. Validasi input disesuaikan dengan kebutuhan alur "Store-First"
         $validatedData = $request->validate([
             'items' => 'required|array|min:1',
             'items.*.id_produk' => 'required|string|exists:tb_produk,id_produk',
             'items.*.jumlah' => 'required|integer|min:1',
-
             'selected_promo_id' => 'nullable|string|exists:tb_promo,id_promo',
             'selected_toko_id' => 'required|string|exists:tb_toko,id_toko',
-            'metode_pengiriman' => 'required|in:delivery,pickup', // Validasi metode pengiriman
-
-            // Kolom opsional
+            'metode_pengiriman' => 'required|in:delivery,pickup',
             'id_alamat' => 'nullable|string|exists:tb_alamat,id_alamat',
             'catatan_pembeli' => 'nullable|string|max:500',
-            'metode_pembayaran_dipilih' => 'nullable|string' // e.g., 'QRIS', 'cod'
+            'metode_pembayaran_dipilih' => 'nullable|string'
         ]);
 
         try {
             $user = Auth::user();
-
-            // 2. Memanggil OrderService dengan parameter yang sudah disesuaikan
             $transaksi = $this->orderService->createOrder(
                 $user,
                 $validatedData['items'],
@@ -71,15 +64,13 @@ class OrderController extends Controller
             $transaksi->snap_token = $token;
             $transaksi->save();
 
-
-            // 3. Menyiapkan data respons yang bersih 
             $responseData = [
                 'id_transaksi' => $transaksi->id_transaksi,
                 'harga_akhir' => $transaksi->harga_akhir,
-                'status' => $transaksi->status, // Menggunakan 'status' sesuai migrasi Anda
+                'status' => $transaksi->status,
                 'pembayaran' => [
                     'id_pembayaran' => $transaksi->pembayaran->id_pembayaran,
-                    'status' => $transaksi->pembayaran->status, // Menggunakan 'status'
+                    'status' => $transaksi->pembayaran->status,
                     'jumlah_dibayar' => $transaksi->pembayaran->jumlah_dibayar,
                     'bukti_bayar' => $transaksi->pembayaran->bukti_bayar,
                 ]
@@ -91,11 +82,8 @@ class OrderController extends Controller
             ], 201); // 201 Created
 
         } catch (PromoUnavailableException | InsufficientStockException | ValidationException $e) {
-            // Menangani error yang sudah diperkirakan (validasi, stok, promo)
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (\Exception $e) {
-            // Menangani semua error tak terduga lainnya'
-
             Log::error('Order creation failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Gagal membuat pesanan, terjadi kesalahan pada server.'], 500);
         }

@@ -18,7 +18,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         if (!$user) {
-            return response()->json(['message' => 'User tidak ditemukan'], 404);
+            return response()->json(['message' => 'User tidak ditemukan'], 200);
         }
 
         // Tambahkan URL gambar jika ada
@@ -124,7 +124,7 @@ class UserController extends Controller
             $alamat = auth()->user()->alamat()->where('id_alamat', $id_alamat)->first();
 
             if (!$alamat) {
-                return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
+                return response()->json(['message' => 'Alamat tidak ditemukan'], 200);
             }
 
         } else {
@@ -135,7 +135,7 @@ class UserController extends Controller
             $alamat = $user->alamat;
 
             if (!$alamat) {
-                return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
+                return response()->json(['message' => 'Alamat tidak ditemukan'], 200);
             }
 
         }
@@ -161,7 +161,7 @@ class UserController extends Controller
         $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
 
         if (!$alamat) {
-            return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
+            return response()->json(['message' => 'Alamat tidak ditemukan'], 200);
         }
 
         // Jika ingin mengubah jadi alamat utama
@@ -190,7 +190,7 @@ class UserController extends Controller
         $alamat = $user->alamat()->where('id_alamat', $request->id_alamat)->first();
 
         if (!$alamat) {
-            return response()->json(['message' => 'Alamat tidak ditemukan'], 404);
+            return response()->json(['message' => 'Alamat tidak ditemukan'], 200);
         }
 
         $isUtama = $alamat->status === 'utama';
@@ -263,7 +263,7 @@ class UserController extends Controller
         $favorite = Favorit::where('id_produk', $request->id_produk)->where('id_user', $user->id_user)->delete();
 
         if (!$favorite) {
-            return response()->json(['message' => 'Produk tidak ditemukan di favorit'], 404);
+            return response()->json(['message' => 'Produk tidak ditemukan di favorit'], 200);
         }
 
         return response()->json(['message' => 'Produk berhasil dihapus dari favorit'], 200);
@@ -286,7 +286,7 @@ class UserController extends Controller
             ->get();
 
         if ($favorit->isEmpty()) {
-            return response()->json(['message' => 'Tidak ada produk favorit'], 404);
+            return response()->json(['message' => 'Tidak ada produk favorit'], 200);
         }
 
         $favorit = $favorit->map(function ($item) {
@@ -319,7 +319,7 @@ class UserController extends Controller
 
         $hargaProduk = Produk::where('id_produk', $request->id_produk)->value('harga');
         if (!$hargaProduk) {
-            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+            return response()->json(['message' => 'Produk tidak ditemukan'], 200);
         }
 
         // Cek apakah produk sudah ada di keranjang
@@ -363,7 +363,7 @@ class UserController extends Controller
 
 
         if ($keranjang->isEmpty()) {
-            return response()->json(['message' => 'Tidak ada produk di keranjang'], 404);
+            return response()->json(['message' => 'Tidak ada produk di keranjang'], 200);
         }
 
         $totalHarga = DB::selectOne("SELECT hitung_total_harga_keranjang(?) AS total", [$user->id_user])->total;
@@ -401,13 +401,13 @@ class UserController extends Controller
         $keranjang = $user->keranjang()->where('id_keranjang', $request->id_keranjang)->first();
 
         if (!$keranjang) {
-            return response()->json(['message' => 'Keranjang tidak ditemukan'], 404);
+            return response()->json(['message' => 'Keranjang tidak ditemukan'], 200);
         }
 
         // Update jumlah dan harga total
         $hargaProduk = Produk::where('id_produk', $keranjang->id_produk)->value('harga');
         if (!$hargaProduk) {
-            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+            return response()->json(['message' => 'Produk tidak ditemukan'], 200);
         }
 
         $keranjang->jumlah = $request->jumlah;
@@ -435,7 +435,7 @@ class UserController extends Controller
         $keranjang = $user->keranjang()->where('id_keranjang', $request->id_keranjang)->first();
 
         if (!$keranjang) {
-            return response()->json(['message' => 'Keranjang tidak ditemukan'], 404);
+            return response()->json(['message' => 'Keranjang tidak ditemukan'], 200);
         }
 
         // Hapus keranjang
